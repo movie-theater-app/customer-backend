@@ -1,0 +1,31 @@
+# Add Cinema Nova Oulu
+POST http://localhost:3000/theaters/add
+Content-Type: application/json
+
+{
+  "name": "Cinema Nova Oulu",
+  "address": "Kauppurienkatu 45, 90100 Oulu, Finland",
+  "contact_information": "Phone: +358 8 5542 3890"
+}
+
+###
+# Add Kino Baltic Turku
+POST http://localhost:3000/theaters/add
+Content-Type: application/json
+
+{
+  "name": "Kino Baltic Turku",
+  "address": "Linnankatu 28, 20100 Turku, Finland",
+  "contact_information": "Phone: +358 2 2641 7520"
+}
+
+###
+# Add Elokuvateatteri Helsinki Central
+POST http://localhost:3000/theaters/add
+Content-Type: application/json
+
+{
+  "name": "Elokuvateatteri Helsinki Central",
+  "address": "Mannerheimintie 112, 00100 Helsinki, Finland",
+  "contact_information": "Phone: +358 9 4257 6180"
+}
