@@ -29,3 +29,94 @@ Content-Type: application/json
   "address": "Mannerheimintie 112, 00100 Helsinki, Finland",
   "contact_information": "Phone: +358 9 4257 6180"
 }
+
+###
+# Add all 3 auditoriums to Cinema Nova Oulu
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 1,
+  "name": "Auditorium 1",
+  "seat_count": 145
+}
+###
+POST http://localhost:3000/auditoriums/add 
+Content-Type: application/json
+
+{
+  "theater_id": 1,
+  "name": "Auditorium 2",
+  "seat_count": 87
+}
+###
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 1,
+  "name": "Auditorium 3",
+  "seat_count": 163
+}
+
+###
+# Add all 4 auditoriums to Kino Baltic Turku
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 2,
+  "name": "Auditorium 1",
+  "seat_count": 192
+}
+###
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 2,
+  "name": "Auditorium 2",
+  "seat_count": 76
+}
+###
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 2,
+  "name": "Auditorium 3",
+  "seat_count": 134
+}
+###
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 2,
+  "name": "Auditorium 4",
+  "seat_count": 58
+}
+
+###
+# Add all 2 auditoriums to Elokuvateatteri Helsinki Central
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 3,
+  "name": "Auditorium 1",
+  "seat_count": 178
+}
+###
+POST http://localhost:3000/auditoriums/add
+Content-Type: application/json
+
+{
+  "theater_id": 3,
+  "name": "Auditorium 2",
+  "seat_count": 121
+}
+
+###
+# Get all auditoriums
+GET http://localhost:3000/auditoriums/
