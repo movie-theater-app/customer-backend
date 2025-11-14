@@ -8,7 +8,7 @@ const pool = new Pool({
     database: process.env.POSTGRES_DB,
     password: process.env.POSTGRES_PASSWORD,
     port: process.env.POSTGRES_PORT,
-    ssl: process.env.SSL
+    ssl: process.env.SSL === 'true' ? { rejectUnauthorized: false } : false
 })
 
 async function query (text, params = []) {
