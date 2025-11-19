@@ -1,5 +1,5 @@
-import express from "express";
-import { getSeatsByAuditorium, reserveSeats } from '../controllers/seatController.js';
+const express = require("express");
+const { getSeatsByAuditorium, reserveSeats } = require("../controllers/seatController");
 
 const router = express.Router();
 
@@ -9,4 +9,4 @@ router.get('/:auditoriumId/seats', getSeatsByAuditorium);
 //reserve selected seats for 5 min
 router.post('/:auditoriumId/seats/reserve', reserveSeats);
 
-export default router;
+module.exports = router;
