@@ -1,18 +1,18 @@
 const seatModel = require('../models/seatModel');
 
-// Hae auditorion paikat
+// get auditorium seats
 async function getSeatsByAuditorium(req, res) {
   const { auditoriumId } = req.params;
   try {
-    const seats = await seatModel.getSeatsByAuditorium(auditoriumId);
-    res.json(seats);
+    const seatsData = await seatModel.getSeatsByAuditorium(auditoriumId);
+    res.json(seatsData); // {seats, rows, columns}
   } catch (error) {
     console.error("Error fetching seats:", error);
     res.status(500).json({ error: "Failed to fetch seats" });
   }
 }
 
-// Varaa paikat
+// reserve seats for 5 min hold
 async function reserveSeats(req, res) {
   const { auditoriumId, seats } = req.body;
   try {
@@ -27,4 +27,4 @@ async function reserveSeats(req, res) {
 module.exports = {
   getSeatsByAuditorium,
   reserveSeats
-};
+}

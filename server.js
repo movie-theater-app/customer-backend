@@ -9,7 +9,7 @@ const PORT = process.env.PORT || 3001;
 
 const theatersRouter = require('./src/routes/theaterRoutes');
 const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
-const seatRoutes = require('./src/routes/seatRoutes');
+const seatRouter = require('./src/routes/seatRoutes');
 
 app.use(cors());
 app.use(express.json());
@@ -23,6 +23,6 @@ app.get('/', (req, res) =>  {
 // Routes
 app.use('/api/theaters', theatersRouter);
 app.use('/api/auditoriums', auditoriumsRouter);
-app.use('/api/seats', seatRoutes);
+app.use('/api/seats', seatRouter);
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));

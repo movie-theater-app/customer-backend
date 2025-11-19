@@ -1,11 +1,12 @@
-const express = require('express');
+import express from "express";
+import { getSeatsByAuditorium, reserveSeats } from '../controllers/seatController.js';
+
 const router = express.Router();
-const seatController = require('../controllers/seatController');
 
 // get auditorium seats by auditorium id
-router.get('/:auditoriumId/seats', seatController.getSeatsByAuditorium);
+router.get('/:auditoriumId/seats', getSeatsByAuditorium);
 
-// Reserve selected seats
-router.post('/:auditoriumId/seats/reserve', seatController.reserveSeats);
+//reserve selected seats for 5 min
+router.post('/:auditoriumId/seats/reserve', reserveSeats);
 
-module.exports = router;
+export default router;
