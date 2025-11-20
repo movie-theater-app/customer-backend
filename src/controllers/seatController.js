@@ -24,7 +24,22 @@ async function reserveSeats(req, res) {
   }
 }
 
+// release seats that were on hold
+async function releaseSeats(req, res) {
+  const { auditoriumId } = req.params;
+  const { seats } = req.body; // [{row: 'A', number: 1},]
+
+  try {
+    const result = await seatModel.releaseSeats(auditoriumId, seats);
+    res.json(result);
+  } catch (error) {
+    console.error("Error releasing seats:", error);
+    res.status(500).json({ error: "Failed to release seats" });
+  }
+}
+
 module.exports = {
   getSeatsByAuditorium,
-  reserveSeats
+  reserveSeats,
+  releaseSeats
 }

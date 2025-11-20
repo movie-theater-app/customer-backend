@@ -94,6 +94,27 @@ async function releaseExpiredHolds() {
     console.error('Error releasing expired holds:', err);
   }
 }
+// release held seats (if user cancels hold)
+async function releaseSeats(auditoriumId, seatsToRelease) {
+  if (!seatsToRelease || seatsToRelease.length === 0) 
+    return { success: false, message: "No seats provided for cancelling" };
+
+  try {
+    for (const seat of seatsToRelease) {
+      await db.query(
+        `UPDATE seats
+         SET status = 'available',
+             reserve_hold_expires_at = NULL
+         WHERE auditorium_id = $1 AND seat_row = $2 AND seat_number = $3`,
+        [auditoriumId, seat.row, seat.number]
+      );
+    }
+    return { success: true };
+  } catch (error) {
+    console.error("Error releasing seats:", error);
+    throw error;
+  }
+}
 
 // runs every minute to release expired holds
 setInterval(releaseExpiredHolds, 60 * 1000);
@@ -101,5 +122,6 @@ setInterval(releaseExpiredHolds, 60 * 1000);
 
 module.exports = {
   getSeatsByAuditorium,
-  reserveSeats
+  reserveSeats,
+  releaseSeats
 };
