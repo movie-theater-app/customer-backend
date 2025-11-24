@@ -29,9 +29,7 @@ app.get('/', (req, res) =>  {
 app.use('/api/theaters', theatersRouter);
 app.use('/api/auditoriums', auditoriumsRouter);
 app.use('/api/seats', seatRouter);
-//app.use('/theaters', theatersRouter);
-//app.use('/auditoriums', auditoriumsRouter);
-app.use('/movies', moviesRouter);
-app.use('/schedules', schedulesRouter);
+app.use('/api/movies', moviesRouter);
+app.use('/api/schedules', schedulesRouter);
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
