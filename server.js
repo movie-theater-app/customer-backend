@@ -30,6 +30,8 @@ app.get('/', (req, res) =>  {
 app.use('/api/theaters', theatersRouter);
 app.use('/api/auditoriums', auditoriumsRouter);
 app.use('/api/seats', seatRouter);
+app.use('/api/movies', moviesRouter);
+app.use('/api/schedules', schedulesRouter);
 //app.use('/theaters', theatersRouter);
 //app.use('/auditoriums', auditoriumsRouter);
 app.use('/movies', moviesRouter);
