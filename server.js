@@ -9,8 +9,8 @@ const PORT = process.env.PORT || 3000;
 
 //const theatersRouter = require('./models/test-adding-theaters');
 //const auditoriumsRouter = require('./models/test-adding-auditoriums');
-const moviesRouter = require('./models/movies');
-const schedulesRouter = require('./models/schedules');
+const moviesRouter = require('./src/models/movies');
+const schedulesRouter = require('./src/models/schedules');
 const theatersRouter = require('./src/routes/theaterRoutes');
 const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
 const seatRouter = require('./src/routes/seatRoutes');
