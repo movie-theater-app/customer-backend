@@ -14,7 +14,7 @@ const schedulesRouter = require('./models/schedules');
 const theatersRouter = require('./src/routes/theaterRoutes');
 const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
 const seatRouter = require('./src/routes/seatRoutes');
-const bookingsRouter = require("./routes/bookings");
+const bookingsRouter = require("./src/routes/bookingRoutes");
 
 
 app.use(cors());
