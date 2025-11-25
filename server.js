@@ -11,10 +11,11 @@ const PORT = process.env.PORT || 3000;
 //const auditoriumsRouter = require('./models/test-adding-auditoriums');
 const moviesRouter = require('./models/movies');
 const schedulesRouter = require('./models/schedules');
-
 const theatersRouter = require('./src/routes/theaterRoutes');
 const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
 const seatRouter = require('./src/routes/seatRoutes');
+const bookingsRouter = require("./routes/bookings");
+
 
 app.use(cors());
 app.use(express.json());
@@ -33,5 +34,6 @@ app.use('/api/seats', seatRouter);
 //app.use('/auditoriums', auditoriumsRouter);
 app.use('/movies', moviesRouter);
 app.use('/schedules', schedulesRouter);
+app.use("/bookings", bookingsRouter);
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));
