@@ -53,3 +53,46 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_D1832E1FE73C4C72A00CA9E834EDF368 }}
+      
+      - name: Configure Database Environment Variables
+        uses: azure/appservice-settings@v1
+        with:
+          app-name: 'demo-NorthStar-movie-theatre'
+          app-settings-json: |
+            [
+              {
+                "name": "DB_HOST",
+                "value": "${{ secrets.DB_HOST }}",
+                "slotSetting": false
+              },
+              {
+                "name": "DB_USER",
+                "value": "${{ secrets.DB_USER }}",
+                "slotSetting": false
+              },
+              {
+                "name": "DB_PASSWORD",
+                "value": "${{ secrets.DB_PASSWORD }}",
+                "slotSetting": false
+              },
+              {
+                "name": "DB_NAME",
+                "value": "${{ secrets.DB_NAME }}",
+                "slotSetting": false
+              },
+              {
+                "name": "DB_PORT",
+                "value": "${{ secrets.DB_PORT }}",
+                "slotSetting": false
+              },
+              {
+                "name": "NODE_ENV",
+                "value": "production",
+                "slotSetting": false
+              },
+              {
+                "name": "SSL",
+                "value": "true",
+                "slotSetting": false
+              }
+            ]
