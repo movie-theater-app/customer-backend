@@ -37,17 +37,18 @@ CREATE TABLE IF NOT EXISTS seats (
     seat_type VARCHAR,
     seat_row VARCHAR NOT NULL,
     status VARCHAR DEFAULT 'available',
-    reserve_hold_expires_at TIMESTAMPTZ;
+    reserve_hold_expires_at TIMESTAMPTZ,
     UNIQUE (auditorium_id, seat_row, seat_number)
 );
 
 --SHOWTIME_SEATS
-CREATE TABLE showtime_seats (
+CREATE TABLE IF NOT EXISTS showtime_seats (
     id SERIAL PRIMARY KEY,
     schedule_id INT NOT NULL REFERENCES schedules(id) ON DELETE CASCADE,
     seat_id INT NOT NULL REFERENCES seats(id) ON DELETE CASCADE,
     status VARCHAR(20) NOT NULL DEFAULT 'available',
-    reserve_hold_expires_at TIMESTAMP
+    reserve_hold_expires_at TIMESTAMP,
+    UNIQUE(schedule_id, seat_id)
 );
 
 -- MOVIES
