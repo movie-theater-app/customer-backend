@@ -15,6 +15,7 @@ const theatersRouter = require('./src/routes/theaterRoutes');
 const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
 const seatRouter = require('./src/routes/seatRoutes');
 const bookingsRouter = require("./src/routes/bookingRoutes");
+const paymentRouter = require("./src/routes/paymentRoutes");
 
 
 app.use(cors());
@@ -32,10 +33,12 @@ app.use('/api/auditoriums', auditoriumsRouter);
 app.use('/api/seats', seatRouter);
 app.use('/api/movies', moviesRouter);
 app.use('/api/schedules', schedulesRouter);
+app.use('/api/payment', paymentRouter);
 //app.use('/theaters', theatersRouter);
 //app.use('/auditoriums', auditoriumsRouter);
 app.use('/movies', moviesRouter);
 app.use('/schedules', schedulesRouter);
 app.use("/bookings", bookingsRouter);
+app.use('/payment', paymentRouter);
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));

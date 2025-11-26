@@ -31,7 +31,7 @@ async function createCheckoutSession (req, res) {
             mode: 'payment',
             ui_mode: 'custom',
             customer_email: email,
-            return_url: `${BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`
+            return_url: `${BASE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`
         });
 
         console.log('Created checkout session:', session);
