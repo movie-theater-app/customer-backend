@@ -61,8 +61,6 @@ async function initializeDatabase() {
             console.log('FORCE_DB_RESET detected - dropping and recreating schema...')
             await pool.query('DROP SCHEMA IF EXISTS public CASCADE')
             await pool.query('CREATE SCHEMA public')
-            await pool.query('GRANT ALL ON SCHEMA public TO postgres')
-            await pool.query('GRANT ALL ON SCHEMA public TO public')
             console.log('Schema recreated successfully')
         }
         
