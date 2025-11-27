@@ -6,19 +6,19 @@ CREATE TABLE IF NOT EXISTS users (
     role BOOLEAN NOT NULL,
     email VARCHAR UNIQUE NOT NULL );
 
--- THEME
-CREATE TABLE IF NOT EXISTS theme (
-    id SERIAL PRIMARY KEY,
-    theater_id INT REFERENCES theaters(id) ON DELETE CASCADE,
-    logo VARCHAR,
-    color_scheme VARCHAR );
-
 -- THEATERS
 CREATE TABLE IF NOT EXISTS theaters (
     id SERIAL PRIMARY KEY,
     name VARCHAR UNIQUE NOT NULL,
     address VARCHAR UNIQUE NOT NULL,
     contact_information TEXT UNIQUE NOT NULL );
+
+-- THEME
+CREATE TABLE IF NOT EXISTS theme (
+    id SERIAL PRIMARY KEY,
+    theater_id INT REFERENCES theaters(id) ON DELETE CASCADE,
+    logo VARCHAR,
+    color_scheme VARCHAR );
 
 -- AUDITORIUMS
 CREATE TABLE IF NOT EXISTS auditoriums (
@@ -39,16 +39,6 @@ CREATE TABLE IF NOT EXISTS seats (
     status VARCHAR DEFAULT 'available',
     reserve_hold_expires_at TIMESTAMPTZ,
     UNIQUE (auditorium_id, seat_row, seat_number)
-);
-
---SHOWTIME_SEATS
-CREATE TABLE IF NOT EXISTS showtime_seats (
-    id SERIAL PRIMARY KEY,
-    schedule_id INT NOT NULL REFERENCES schedules(id) ON DELETE CASCADE,
-    seat_id INT NOT NULL REFERENCES seats(id) ON DELETE CASCADE,
-    status VARCHAR(20) NOT NULL DEFAULT 'available',
-    reserve_hold_expires_at TIMESTAMP,
-    UNIQUE(schedule_id, seat_id)
 );
 
 -- MOVIES
@@ -74,6 +64,16 @@ CREATE TABLE IF NOT EXISTS schedules (
     end_time TIME WITH TIME ZONE NOT NULL,
     CONSTRAINT unique_screening_per_auditorium
         UNIQUE (auditorium_id, screening_date, start_time, end_time)
+);
+
+--SHOWTIME_SEATS
+CREATE TABLE IF NOT EXISTS showtime_seats (
+    id SERIAL PRIMARY KEY,
+    schedule_id INT NOT NULL REFERENCES schedules(id) ON DELETE CASCADE,
+    seat_id INT NOT NULL REFERENCES seats(id) ON DELETE CASCADE,
+    status VARCHAR(20) NOT NULL DEFAULT 'available',
+    reserve_hold_expires_at TIMESTAMP,
+    UNIQUE(schedule_id, seat_id)
 );
 -- BOOKINGS
 CREATE TABLE IF NOT EXISTS bookings (
