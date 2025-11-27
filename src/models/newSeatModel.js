@@ -3,23 +3,41 @@ const db = require('../db/db');
 // get seats for a specific showtime
 // this connects 3 tables with join-operation (showtime_seats, seats ans schedules)
 async function getSeatsByShowtime(scheduleId) {
-    console.log('scheduleId received:', scheduleId);
+    console.log('scheduleId received in model:', scheduleId);
     // ensure scheduleId is provided
      if (!scheduleId) {
+        console.error('scheduleId is missing!');
         throw new Error('scheduleId is required');
         }
         // ensure scheduleId is a number
         if (isNaN(scheduleId)) {
+        console.error('scheduleId is not a number!');
         throw new Error('scheduleId must be a number');
         }
+
     try {
-        console.log('Fetching seats for scheduleId:', scheduleId);
-    
+        // check that schedule exists
+        console.log('Checking if schedule exists...');
+        const scheduleCheck = await db.query(
+            `SELECT id, auditorium_id FROM schedules WHERE id = $1`,
+            [scheduleId]
+            );
+            console.log('scheduleCheck result:', scheduleCheck.rows);
+
+        if (scheduleCheck.rows.length === 0) {
+            console.error(`Schedule with id ${scheduleId} not found`);
+            throw new Error(`Schedule with id ${scheduleId} not found`);
+        }
+        const auditoriumId = scheduleCheck.rows[0].auditorium_id;
+        console.log('auditoriumId:', auditoriumId);
+
+
         // Main query -> get all seats for given showtime
         // - ss = showtime_seats alias
         // - s = seats (actual seat layout) alias
         // - sc = schedules (to get movie_id and theater_id) alias
-        const result = await db.query(
+        console.log('Fetching seats for showtime..');
+        const seatsResult = await db.query(
             `SELECT ss.id AS showtime_seat_id,
                     s.seat_row AS row,
                     s.seat_number AS number,
@@ -28,31 +46,42 @@ async function getSeatsByShowtime(scheduleId) {
                     sc.movie_id, 
                     sc.theater_id
             FROM showtime_seats ss
-            JOIN seats s ON ss.seat_id = s.id
+            JOIN seats s ON s.id = ss.seat_id
             JOIN schedules sc ON sc.id = ss.schedule_id
             WHERE ss.schedule_id = $1
             ORDER BY s.seat_row, s.seat_number`,
             [scheduleId]
         );
 
-         console.log("Rows found:", result.rowCount);
+        console.log('seatsResult:', seatsResult.rows);
+         if (!seatsResult.rows || seatsResult.rows.length === 0) {
+            console.warn(`No seats found for schedule ${scheduleId}`);
+        }
 
         // get auditorium info for layout
+        console.log('Fetching auditorium info...');
         const auditoriumResult = await db.query(
-            `SELECT a.seat_count
+           /* `SELECT a.seat_count
             FROM auditoriums a
             JOIN seats s ON s.auditorium_id = a.id
             JOIN showtime_seats ss ON ss.seat_id = s.id
             WHERE ss.schedule_id = $1
             LIMIT 1`,
-            [scheduleId]
+            [scheduleId]*/
+
+            `SELECT seat_count
+            FROM auditoriums WHERE id = $1`,
+            [auditoriumId]
+
         );
         // error if no auditorium is linked to schedule
         if (auditoriumResult.rows.length === 0) {
-            throw new Error('No auditorium found for this schedule');
+            console.error(`Auditorium with id ${auditoriumId} not found`);
+            throw new Error(`Auditorium with id ${auditoriumId} not found for schedule ${scheduleId}`);
         }
 
         const seatCount = auditoriumResult.rows[0].seat_count;
+        console.log('seatCount:', seatCount);
         // cxalculate how many columns to show in the seat map UI (same as in staff app seat-map generating)
         function calculateColumns(seatCount) {
             if (seatCount <= 80) return 12;
@@ -63,12 +92,12 @@ async function getSeatsByShowtime(scheduleId) {
 
         const columns = calculateColumns(seatCount);
         const rows = Math.ceil(seatCount / columns); // total rows needed for seat map
-
-        return { seats: result.rows, rows, columns };
-        }
-    catch (err) {
-        console.error('Error in getSeatsByShowtime:', err);
-        throw err;
+        console.log('Returning seat map:', { rows, columns, seatsCount: seatsResult.rows.length });
+        return { seats: seatsResult.rows, rows, columns };
+        
+    } catch (error) {
+        console.error('Error in getSeatsByShowtime model:', error);
+        throw error;
   }
 }
 
@@ -140,12 +169,16 @@ async function releaseSeats(scheduleId, seatsToRelease) {
 
 // release expired reservations every minute
 setInterval(async () => {
-  await db.query(
-    `UPDATE showtime_seats
-     SET status = 'available',
-         reserve_hold_expires_at = NULL
-     WHERE status = 'reserved' AND reserve_hold_expires_at <= NOW()`
-  );
+    try {
+        await db.query(
+            `UPDATE showtime_seats
+            SET status = 'available',
+                reserve_hold_expires_at = NULL
+            WHERE status = 'reserved' AND reserve_hold_expires_at <= NOW()`
+        );
+    } catch (error) {
+        console.error('Error releasing expired reservations:', error);
+    }
 }, 60 * 1000);
 
 module.exports = { getSeatsByShowtime, reserveSeats, releaseSeats };
