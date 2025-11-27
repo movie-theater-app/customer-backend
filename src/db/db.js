@@ -56,6 +56,16 @@ async function initializeDatabase() {
     try {
         console.log('Starting Azure database initialization...')
         
+        // Drop and recreate schema if FORCE_DB_RESET is set
+        if (process.env.FORCE_DB_RESET === 'true') {
+            console.log('FORCE_DB_RESET detected - dropping and recreating schema...')
+            await pool.query('DROP SCHEMA IF EXISTS public CASCADE')
+            await pool.query('CREATE SCHEMA public')
+            await pool.query('GRANT ALL ON SCHEMA public TO postgres')
+            await pool.query('GRANT ALL ON SCHEMA public TO public')
+            console.log('Schema recreated successfully')
+        }
+        
         await executeSqlFile('init.sql')
         await executeSqlFile('alter.sql')
         
