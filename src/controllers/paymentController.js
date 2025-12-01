@@ -6,28 +6,30 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 
 async function createCheckoutSession (req, res) {
-    const { item, quantity, email } = req.body;
+    const { items, email } = req.body;
 
-    if(!item) return res.status(400).send("Item is required");
-    if(!quantity) return res.status(400).send("Quantity is required");
+    if(!items) return res.status(400).send("An item is required");
     if(!email) return res.status(400).send("Email is required");
     try {
-        const newItem = {
-            price_data: {
-                currency: 'EUR',
-                product_data: {
-                    name: item.name,
+        let lineItems  = [];
+        items.forEach((item) => {
+            const newItem = {
+                price_data: {
+                    currency: 'EUR',
+                    product_data: {
+                        name: item.name,
+                    },
+                    unit_amount: item.price,
                 },
-                unit_amount: item.price,
-            },
-            quantity: quantity,
-        };
+                quantity: item.quantity,
+            };
+            lineItems.push(newItem);
+        })
 
-        console.log('Creating checkout session for item:', newItem);
+
+        console.log('Creating checkout session for items:', lineItems);
         const session = await stripe.checkout.sessions.create({
-            line_items: [
-                newItem,
-            ],
+            line_items: lineItems,
             mode: 'payment',
             ui_mode: 'custom',
             customer_email: email,
@@ -49,18 +51,25 @@ async function getCheckoutSessionStatus (req, res) {
 
     try {
         const session = await stripe.checkout.sessions.retrieve(session_id);
-        res.json ({
+        const lineItems = await stripe.checkout.sessions.listLineItems(session_id,);
+        /*res.json ({
             id: session.id,
             payment_status: session.payment_status,
             amount_total: session.amount_total,
             currency: session.currency,
             customer_email: session.customer_email,
+        })*/
+        res.json ({
+            session,
+            items: lineItems
         })
+        //res.json(session);
     } catch (error) {
         console.error('Error retrieving session:', error);
         res.status(400).json({ error: error.message });
     }
 }
+
 module.exports = {
     createCheckoutSession,
     getCheckoutSessionStatus,
