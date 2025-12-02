@@ -36,6 +36,6 @@ app.use('/api/schedules', schedulesRouter);
 //app.use('/auditoriums', auditoriumsRouter);
 app.use('/movies', moviesRouter);
 app.use('/schedules', schedulesRouter);
-app.use("/bookings", bookingsRouter);
+app.use("/api/bookings", bookingsRouter);
 
 app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT}`));

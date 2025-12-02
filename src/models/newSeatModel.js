@@ -39,6 +39,7 @@ async function getSeatsByShowtime(scheduleId) {
         console.log('Fetching seats for showtime..');
         const seatsResult = await db.query(
             `SELECT ss.id AS showtime_seat_id,
+                    s.id AS seat_id,
                     s.seat_row AS row,
                     s.seat_number AS number,
                     s.seat_type,
