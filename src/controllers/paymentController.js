@@ -4,9 +4,11 @@ const req = require("express/lib/request");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2025-03-31.basil',
 });
+const paymentModel = require("../models/paymentModel");
+const db = require("../db/db");
 
 async function createCheckoutSession (req, res) {
-    const { items, email } = req.body;
+    const { items, email, booking_id } = req.body;
 
     if(!items) return res.status(400).send("An item is required");
     if(!email) return res.status(400).send("Email is required");
@@ -27,21 +29,19 @@ async function createCheckoutSession (req, res) {
         })
 
 
-        console.log('Creating checkout session for items:', lineItems);
         const session = await stripe.checkout.sessions.create({
             line_items: lineItems,
             mode: 'payment',
             ui_mode: 'custom',
             customer_email: email,
-            return_url: `${BASE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}`
+            return_url: `${BASE_URL}/payment/success?session_id={CHECKOUT_SESSION_ID}&booking_id=${booking_id}`,
         });
 
-        console.log('Created checkout session:', session);
 
         res.json({client_secret: session.client_secret});
     } catch (error) {
         console.error('Error creating checkout session:', error);
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message });
     }
 
 }
@@ -52,25 +52,57 @@ async function getCheckoutSessionStatus (req, res) {
     try {
         const session = await stripe.checkout.sessions.retrieve(session_id);
         const lineItems = await stripe.checkout.sessions.listLineItems(session_id,);
-        /*res.json ({
-            id: session.id,
-            payment_status: session.payment_status,
-            amount_total: session.amount_total,
-            currency: session.currency,
-            customer_email: session.customer_email,
-        })*/
         res.json ({
             session,
             items: lineItems
         })
-        //res.json(session);
     } catch (error) {
         console.error('Error retrieving session:', error);
+        res.status(404).json({ error: error.message });
+    }
+}
+
+async function createTickets (req, res) {
+    const { booking_id, price, child_discount} = req.body;
+
+    try {
+        const result = await paymentModel.createTickets(booking_id,price,child_discount);
+        res.json(result);
+    } catch (error) {
+        console.error('Error creating ticket', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+async function updateTickets (req, res) {
+    const {  tickets, is_paid} = req.body;
+
+    try {
+        const result = await paymentModel.updateTickets(tickets,is_paid);
+        res.json(result);
+    } catch (error) {
+        console.error('Error updating tickets', error);
         res.status(400).json({ error: error.message });
     }
 }
+async function createPayment (req, res) {
+    const { booking_id, session_id, paid_at, amount } = req.body;
+
+    try {
+        const result = await paymentModel.createPayment(booking_id,session_id,paid_at, amount);
+        res.json(result);
+    } catch (error) {
+        console.error('Error creating payments', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+
 
 module.exports = {
     createCheckoutSession,
     getCheckoutSessionStatus,
+    createTickets,
+    updateTickets,
+    createPayment
 }

@@ -34,6 +34,7 @@ app.use('/api/seats', seatRouter);
 app.use('/api/movies', moviesRouter);
 app.use('/api/schedules', schedulesRouter);
 app.use('/api/payment', paymentRouter);
+app.use('/api/bookings', bookingsRouter);
 //app.use('/theaters', theatersRouter);
 //app.use('/auditoriums', auditoriumsRouter);
 app.use('/movies', moviesRouter);
