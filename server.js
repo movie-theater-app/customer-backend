@@ -22,7 +22,10 @@ const allowedOrigins = [
   "http://localhost:5173"
 ];
 
-app.use(cors({
+
+app.use(cors());
+
+/*app.use(cors({
    origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost")) {
       callback(null, true);
@@ -31,7 +34,7 @@ app.use(cors({
     }
   },
   credentials: true
-}));
+}));*/
 
 
 app.use(express.json());
