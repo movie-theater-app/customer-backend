@@ -16,8 +16,16 @@ const auditoriumsRouter = require('./src/routes/auditoriumRoutes');
 const seatRouter = require('./src/routes/seatRoutes');
 const bookingsRouter = require("./src/routes/bookingRoutes");
 
+const allowedOrigins = [
+  "https://delightful-forest-092e86a03.3.azurestaticapps.net",
+  "https://demo-northstar-movie-theatre.azurewebsites.net"
+];
 
-app.use(cors());
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true,
+}));
+
 app.use(express.json());
 // Swagger UI -> see documentation at http://localhost:3001/api-docs
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
