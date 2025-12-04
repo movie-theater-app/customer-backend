@@ -18,15 +18,16 @@ const bookingsRouter = require("./src/routes/bookingRoutes");
 
 const allowedOrigins = [
   "https://delightful-forest-092e86a03.3.azurestaticapps.net",
-  "https://demo-northstar-movie-theatre.azurewebsites.net"
+  "https://demo-northstar-movie-theatre.azurewebsites.net",
+  "http://localhost:5173"
 ];
 
 app.use(cors({
    origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin || allowedOrigins.includes(origin) || origin.startsWith("http://localhost")) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error(`CORS: Origin ${origin} not allowed`));
     }
   },
   credentials: true
