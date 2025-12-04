@@ -12,8 +12,8 @@ exports.createBooking = async (req, res) => {
         const result = await bookingModel.createBooking(scheduleId, seats, movieId);
         res.json(result);
     } catch (error) {
-        console.error("Create booking failed:", error);
-        res.status(500).json({ error: "Failed to create booking" });
+        console.error("Create booking failed:", error.message);
+        res.status(500).json({error: error.message});
     }
 };
 
