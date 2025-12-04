@@ -36,6 +36,10 @@ app.use(cors());
   credentials: true
 }));*/
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 
 app.use(express.json());
 // Swagger UI -> see documentation at http://localhost:3001/api-docs
