@@ -58,6 +58,28 @@ async function confirmBooking(bookingId, totalAmount, paymentStatus) {
   }
 }
 
+// Method to get booking
+
+ async function getBookingByID(booking_id) {
+    try {
+        const query = `
+        SELECT * 
+        FROM bookings
+        WHERE id = $1;`
+
+        const result = await db.query(query, [booking_id]);
+
+        if (result.rowCount === 0){
+            console.log(`Error getting the booking  with id ${booking_id}`);
+            throw new Error(`Error getting the booking with id ${booking_id}`);
+        }
+
+        return result.rows[0];
+    } catch (error) {
+        console.error(`Error getting the booking with id ${booking_id}`, error);
+    }
+ }
+
 //Method to get tickets depending on the booking ID
  async function getTicketsFromBooking(bookingId) {
     try {
@@ -83,9 +105,9 @@ async function confirmBooking(bookingId, totalAmount, paymentStatus) {
  async function getBookingSeats(bookingId){
     try{
         const query = `
-        SELECT seats
-        FROM bookings
-        WHERE id = $1;`;
+        SELECT seat_id
+        FROM booking_seats
+        WHERE booking_id = $1;`;
 
         const result = await db.query(query, [bookingId]);
 
@@ -104,6 +126,7 @@ async function confirmBooking(bookingId, totalAmount, paymentStatus) {
 module.exports = {
   createBooking,
   confirmBooking,
+  getBookingByID,
   getTicketsFromBooking,
   getBookingSeats,
 };

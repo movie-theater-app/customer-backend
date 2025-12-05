@@ -10,4 +10,6 @@ router.post('/tickets/create', paymentController.createTickets);
 router.put('/tickets/confirm', paymentController.updateTickets);
 
 router.post('/create', paymentController.createPayment);
+
+router.post('/email/send', paymentController.sendEmail)
 module.exports = router;

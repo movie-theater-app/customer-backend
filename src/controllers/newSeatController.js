@@ -42,4 +42,16 @@ async function releaseSeats(req, res) {
   }
 }
 
-module.exports = { getSeatsByShowtime, reserveSeats, releaseSeats };
+async function getSeatsByBooking(req, res) {
+    const { booking_id } = req.params;
+
+    try {
+        const result = await seatModel.getSeatsByBooking(booking_id);
+        res.json(result);
+    } catch (err) {
+        console.error('Error caught in controller (getSeatsByBooking):', err);
+        res.status(500).json({ error: 'Failed to get seats by booking' });
+    }
+}
+
+module.exports = { getSeatsByShowtime, reserveSeats, releaseSeats, getSeatsByBooking};

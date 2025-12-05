@@ -1,5 +1,5 @@
 const express = require('express');
-const { getSeatsByShowtime, reserveSeats, releaseSeats } = require("../controllers/newSeatController");
+const { getSeatsByShowtime, reserveSeats, releaseSeats, getSeatsByBooking} = require("../controllers/newSeatController");
 
 const router = express.Router();
 
@@ -11,5 +11,7 @@ const router = express.Router();
 
     // release held seats
     router.post('/release', releaseSeats);
+
+    router.get('/get/booking/:booking_id', getSeatsByBooking);
 
     module.exports = router;

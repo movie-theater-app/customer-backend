@@ -32,6 +32,18 @@ exports.confirmBooking = async (req, res) => {
     }
 }
 
+exports.getBookingByID = async (req, res) => {
+    const { booking_id } = req.params;
+
+    try {
+        const result = await bookingModel.getBookingByID(booking_id);
+        res.json(result);
+    } catch (error) {
+        console.error("Get booking failed:", error);
+        res.status(500).json({ error: "Failed to get booking" });
+    }
+}
+
 exports.getBookingSeats = async (req, res) => {
     const { booking_id } = req.params;
 

@@ -6,6 +6,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 });
 const paymentModel = require("../models/paymentModel");
 const db = require("../db/db");
+const nodemailer = require("nodemailer");
 
 async function createCheckoutSession (req, res) {
     const { items, email, booking_id } = req.body;
@@ -98,11 +99,90 @@ async function createPayment (req, res) {
 }
 
 
+// EMAIL SEND AND CREATION
+const transporter = nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false, // true for 465, false for other ports
+    auth: {
+        user: "casimir93@ethereal.email",
+        pass: "dQ4PDZrF5sHUb1wykk",
+    },
+});
+
+async function sendEmail (req, res) {
+    try{
+        const { email, receipt } = req.body;
+        const info = await transporter.sendMail({
+            from: '"North Star Theatre" <casimir93@ethereal.email>',
+            to: email,
+            subject: '"Tickets purchase"',
+            text: "Tickets receipt",
+            html: ticketsReceipt(receipt)
+        })
+        console.log("Message sent:", info.messageId)
+        res.status(201).send({ success: true, messageId: info.messageId, preview: nodemailer.getTestMessageUrl(info) })
+    } catch (error) {
+        console.error('Error sending email', error);
+        res.status(500).json({ error: error.message });
+    }
+
+}
+
+function ticketsReceipt(receipt) {
+    const ticketBlocks = receipt.tickets
+        .map(
+            (ticket) => `
+        <div style="margin-bottom: 10px;">
+          <p>${ticket.child_discount ? "Child Ticket" : "Adult Ticket"}</p>
+          <p>Price: ${ticket.price}</p>
+          <p>Barcode Number: ${ticket.barcode_number}</p>
+          <p>Seat Type: ${ticket.seat_type}</p>
+          <p>Seat Number: ${ticket.seat_number}</p>
+          <p>Seat Row: ${ticket.seat_row}</p>
+        </div>
+      `
+        )
+        .join("");
+
+    return `
+    <div>
+      <h2> MOVIE: ${receipt.title}</h2>
+      <h4> DATE: ${receipt.date}</h4>
+      <h4> TIME: ${receipt.start_time} - ${receipt.end_time}</h4>
+      <p> THEATER: ${receipt.theater}</p>
+      <p> AUDITORIUM: ${receipt.auditorium}</p>
+
+      ${ticketBlocks}
+
+      ${
+        receipt.childTickets > 0
+            ? `<p>Number of child tickets: ${receipt.childTickets}. Price: ${receipt.childPrice}. Total: ${
+                receipt.childTickets * receipt.childPrice
+            }</p>`
+            : ""
+    }
+
+      ${
+        receipt.normalTickets > 0
+            ? `<p>Number of adult tickets: ${receipt.normalTickets}. Price: ${receipt.normalPrice}. Total: ${
+                receipt.normalTickets * receipt.normalPrice
+            }</p>`
+            : ""
+    }
+
+      <p>Number of tickets: ${receipt.normalTickets + receipt.childTickets}</p>
+      <p>Total Price: ${receipt.totalPrice}</p>
+    </div>
+  `;
+}
+
 
 module.exports = {
     createCheckoutSession,
     getCheckoutSessionStatus,
     createTickets,
     updateTickets,
-    createPayment
+    createPayment,
+    sendEmail
 }
