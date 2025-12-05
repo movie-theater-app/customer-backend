@@ -1,4 +1,4 @@
-const db = require('../db/db');
+ const db = require('../db/db');
 
 
 async function createBooking(scheduleId, seats, movieId) {
@@ -58,8 +58,75 @@ async function confirmBooking(bookingId, totalAmount, paymentStatus) {
   }
 }
 
+// Method to get booking
+
+ async function getBookingByID(booking_id) {
+    try {
+        const query = `
+        SELECT * 
+        FROM bookings
+        WHERE id = $1;`
+
+        const result = await db.query(query, [booking_id]);
+
+        if (result.rowCount === 0){
+            console.log(`Error getting the booking  with id ${booking_id}`);
+            throw new Error(`Error getting the booking with id ${booking_id}`);
+        }
+
+        return result.rows[0];
+    } catch (error) {
+        console.error(`Error getting the booking with id ${booking_id}`, error);
+    }
+ }
+
+//Method to get tickets depending on the booking ID
+ async function getTicketsFromBooking(bookingId) {
+    try {
+        const query = `
+        SELECT * 
+        FROM tickets
+        WHERE booking_id = $1;`;
+
+        const result = await db.query(query, [bookingId]);
+
+        if(result.rowCount === 0){
+            console.log(`Error getting the tickets from the booking with id ${bookingId}`);
+            throw new Error(`Error getting the tickets from the booking with id ${bookingId}`);
+        }
+        return result.rows;
+    } catch (error) {
+        console.error(`Error getting tickets from booking with id: ${bookingId}`, error);
+    }
+ }
+
+
+// Called to get the seats amount so the user can select the actual ticket types
+ async function getBookingSeats(bookingId){
+    try{
+        const query = `
+        SELECT seat_id
+        FROM booking_seats
+        WHERE booking_id = $1;`;
+
+        const result = await db.query(query, [bookingId]);
+
+        if (result.rowCount === 0) {
+            console.log(`Error getting seats from booking. Booking with id ${bookingId}`);
+            throw new Error("Error getting seats from booking");
+        }
+
+        return result.rows;
+    } catch (error) {
+        console.error(`Error getting seats from booking with id: ${bookingId}`, error);
+    }
+ }
+
 
 module.exports = {
   createBooking,
-  confirmBooking
+  confirmBooking,
+  getBookingByID,
+  getTicketsFromBooking,
+  getBookingSeats,
 };

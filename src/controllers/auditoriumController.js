@@ -20,7 +20,18 @@ const getAuditoriumsByTheater = async (req, res) => {
   }
 };
 
+const getAuditoriumByID = async (req, res) => {
+    try {
+        const auditorium = await auditoriumModel.getAuditoriumByID(req.params.auditorium_id);
+        res.json(auditorium);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: `Failed to fetch auditoriums by id: ${req.params.auditorium_id}` });
+    }
+};
+
 module.exports = {
   getAllAuditoriums,
   getAuditoriumsByTheater,
+  getAuditoriumByID,
 };

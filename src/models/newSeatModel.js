@@ -1,4 +1,5 @@
 const db = require('../db/db');
+const seatIDResult = require("pg/lib/query");
 
 // get seats for a specific showtime
 // this connects 3 tables with join-operation (showtime_seats, seats ans schedules)
@@ -168,6 +169,27 @@ async function releaseSeats(scheduleId, seatsToRelease) {
   return { success: true };
 }
 
+async function getSeatsByBooking (bookingID) {
+    const query = `
+    SELECT seat_id
+    FROM booking_seats
+    WHERE booking_id = $1;`;
+
+    const seatIDResults = await db.query(query, [bookingID]);
+    const seatIDs = seatIDResults.rows.map(seat => seat.seat_id);
+
+    const querySeats = `
+    SELECT *
+    FROM seats
+    WHERE id in (
+        SELECT UNNEST($1::int[])
+        )`
+
+    const result = await db.query(querySeats, [seatIDs]);
+
+    return result.rows;
+}
+
 // release expired reservations every minute
 setInterval(async () => {
     try {
@@ -182,4 +204,4 @@ setInterval(async () => {
     }
 }, 60 * 1000);
 
-module.exports = { getSeatsByShowtime, reserveSeats, releaseSeats };
+module.exports = { getSeatsByShowtime, reserveSeats, releaseSeats, getSeatsByBooking };
