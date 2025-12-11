@@ -19,11 +19,23 @@ const paymentRouter = require("./src/routes/paymentRoutes");
 
 const allowedOrigins = [
     "https://delightful-forest-092e86a03.3.azurestaticapps.net",
-    "https://demo-northstar-movie-theatre.azurewebsites.net",
     "http://localhost:5173"
 ];
 
-app.use(cors());
+app.use(cors({
+  origin: function(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true, 
+}));
+
+// app.use(cors());
 
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
