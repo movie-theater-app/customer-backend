@@ -1,6 +1,5 @@
 const BASE_URL = process.env.VITE_BASE_URL;
 const Stripe = require('stripe');
-const req = require("express/lib/request");
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
     apiVersion: '2025-03-31.basil',
 });
@@ -86,6 +85,19 @@ async function updateTickets (req, res) {
         res.status(400).json({ error: error.message });
     }
 }
+
+async function generateUniqueBarcode (req, res) {
+    try {
+        const result = await paymentModel.generateUniqueBarcode();
+        res.json(result);
+    } catch (error) {
+        console.error('Error generating unique barcode', error);
+        res.status(400).json({ error: error.message });
+    }
+}
+
+
+
 async function createPayment (req, res) {
     const { booking_id, session_id, paid_at, amount } = req.body;
 
@@ -99,14 +111,14 @@ async function createPayment (req, res) {
 }
 
 
+
+
 // EMAIL SEND AND CREATION
 const transporter = nodemailer.createTransport({
-    host: "smtp.ethereal.email",
-    port: 587,
-    secure: false, // true for 465, false for other ports
+    service: "gmail",
     auth: {
-        user: "casimir93@ethereal.email",
-        pass: "dQ4PDZrF5sHUb1wykk",
+        user: "jimyrrocket@gmail.com",
+        pass: process.env.GOOGLE_APP_PASSWORD,
     },
 });
 
@@ -114,14 +126,14 @@ async function sendEmail (req, res) {
     try{
         const { email, receipt } = req.body;
         const info = await transporter.sendMail({
-            from: '"North Star Theatre" <casimir93@ethereal.email>',
+            from: '"North Star Theatre" <jimyrrocket@gmail.com>',
             to: email,
             subject: '"Tickets purchase"',
             text: "Tickets receipt",
             html: ticketsReceipt(receipt)
         })
         console.log("Message sent:", info.messageId)
-        res.status(201).send({ success: true, messageId: info.messageId, preview: nodemailer.getTestMessageUrl(info) })
+        res.status(201).send({ success: true, messageId: info.messageId })
     } catch (error) {
         console.error('Error sending email', error);
         res.status(500).json({ error: error.message });
@@ -129,35 +141,58 @@ async function sendEmail (req, res) {
 
 }
 
+
 function ticketsReceipt(receipt) {
     const ticketBlocks = receipt.tickets
         .map(
             (ticket) => `
-        <div style="margin-bottom: 10px;">
-          <p>${ticket.child_discount ? "Child Ticket" : "Adult Ticket"}</p>
-          <p>Price: ${ticket.price}</p>
-          <p>Barcode Number: ${ticket.barcode_number}</p>
-          <p>Seat Type: ${ticket.seat_type}</p>
-          <p>Seat Number: ${ticket.seat_number}</p>
-          <p>Seat Row: ${ticket.seat_row}</p>
-        </div>
-      `
+      <div style="
+        margin: 20px auto;
+        padding: 15px;
+        max-width: 420px;
+        background-color: #f4fbff;
+        border: 1px solid #5398ad;
+        border-radius: 6px;
+      ">
+        <p style="margin: 4px 0; font-weight: bold;">
+          ${ticket.child_discount ? "Child Ticket" : "Adult Ticket"}
+        </p>
+        <p style="margin: 4px 0;">Price: €${ticket.price}</p>
+        <p style="margin: 4px 0;">
+          <strong>Barcode:</strong> ${ticket.barcode_number}
+        </p>
+        <p style="margin: 4px 0;">Seat Type: ${ticket.seat_type}</p>
+        <p style="margin: 4px 0;">
+          Seat: Row ${ticket.seat_row}, Number ${ticket.seat_number}
+        </p>
+      </div>
+    `
         )
         .join("");
 
     return `
-    <div>
-      <h2> MOVIE: ${receipt.title}</h2>
-      <h4> DATE: ${receipt.date}</h4>
-      <h4> TIME: ${receipt.start_time} - ${receipt.end_time}</h4>
-      <p> THEATER: ${receipt.theater}</p>
-      <p> AUDITORIUM: ${receipt.auditorium}</p>
+    <div style="
+      background-color: #ffffff;
+      padding: 20px;
+      color: #333333;
+    ">
+      <h2 style="margin-bottom: 5px;"> ${receipt.title}</h2>
+      <p style="margin: 2px 0;"><strong>Date:</strong> ${receipt.date}</p>
+      <p style="margin: 2px 0;">
+        <strong>Time:</strong> ${receipt.start_time} - ${receipt.end_time}
+      </p>
+      <p style="margin: 2px 0;"><strong>Theater:</strong> ${receipt.theater}</p>
+      <p style="margin: 2px 0;">
+        <strong>Auditorium:</strong> ${receipt.auditorium}
+      </p>
 
       ${ticketBlocks}
 
+      <hr style="margin: 20px 0;" />
+
       ${
         receipt.childTickets > 0
-            ? `<p>Number of child tickets: ${receipt.childTickets}. Price: ${receipt.childPrice}. Total: ${
+            ? `<p>Child tickets: ${receipt.childTickets} × €${receipt.childPrice} = €${
                 receipt.childTickets * receipt.childPrice
             }</p>`
             : ""
@@ -165,17 +200,26 @@ function ticketsReceipt(receipt) {
 
       ${
         receipt.normalTickets > 0
-            ? `<p>Number of adult tickets: ${receipt.normalTickets}. Price: ${receipt.normalPrice}. Total: ${
+            ? `<p>Adult tickets: ${receipt.normalTickets} × €${receipt.normalPrice} = €${
                 receipt.normalTickets * receipt.normalPrice
             }</p>`
             : ""
     }
 
-      <p>Number of tickets: ${receipt.normalTickets + receipt.childTickets}</p>
-      <p>Total Price: ${receipt.totalPrice}</p>
+      <p><strong>Total tickets:</strong> ${
+        receipt.normalTickets + receipt.childTickets
+    }</p>
+      <p style="font-size: 16px;">
+        <strong>Total price:</strong> €${receipt.totalPrice}
+      </p>
+
+      <p style="margin-top: 25px; font-size: 12px; color: #666;">
+        Please present this email at the entrance. Enjoy the movie!
+      </p>
     </div>
   `;
 }
+
 
 
 module.exports = {
@@ -184,5 +228,6 @@ module.exports = {
     createTickets,
     updateTickets,
     createPayment,
-    sendEmail
+    sendEmail,
+    generateUniqueBarcode,
 }

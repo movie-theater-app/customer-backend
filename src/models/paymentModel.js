@@ -1,4 +1,5 @@
 const db = require("../db/db");
+const nodemailer = require("nodemailer");
 
 // First creation of the tickets when the user select the ticket type
 async function createTickets (booking_id, price, child_discount) {
@@ -18,6 +19,27 @@ async function createTickets (booking_id, price, child_discount) {
     }
 
     return result.rows[0];
+}
+
+function generateBarcodeNumber(length = 16) {
+    const BARCODE_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+    for (let i = 0; i < length; i++) {
+        const idx = Math.floor(Math.random() * BARCODE_ALPHABET.length);
+        code += BARCODE_ALPHABET[idx];
+    }
+    return code;
+}
+
+async function generateUniqueBarcode() {
+    let barcode;
+    let exists;
+    do {
+        barcode = generateBarcodeNumber(16);
+        exists = await checkBarcodeExists(barcode);
+    } while (exists);
+
+    return barcode;
 }
 
 async function updateTickets (tickets, is_paid) {
@@ -40,6 +62,19 @@ async function updateTickets (tickets, is_paid) {
     return result.rows;
 }
 
+async function checkBarcodeExists(barcode_number) {
+    const query = `
+        SELECT 1
+        FROM tickets
+        WHERE barcode_number = $1
+        LIMIT 1;
+    `;
+
+    const result = await db.query(query, [barcode_number]);
+    return result.rowCount > 0;
+}
+
+
 async function createPayment (booking_id, session_id, paid_at, amount){
     const query = `
     INSERT INTO payments
@@ -56,5 +91,6 @@ async function createPayment (booking_id, session_id, paid_at, amount){
 module.exports = {
     createTickets,
     updateTickets,
-    createPayment
+    createPayment,
+    generateUniqueBarcode,
 };
