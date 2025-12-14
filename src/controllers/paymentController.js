@@ -210,7 +210,7 @@ function ticketsReceipt(receipt) {
         receipt.normalTickets + receipt.childTickets
     }</p>
       <p style="font-size: 16px;">
-        <strong>Total price:</strong> €${receipt.totalPrice}
+        <strong>Total price:</strong> €${(receipt.totalPrice / 100).toFixed(2)}
       </p>
 
       <p style="margin-top: 25px; font-size: 12px; color: #666;">
